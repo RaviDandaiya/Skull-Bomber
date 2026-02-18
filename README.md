@@ -1,6 +1,7 @@
 # 💀 Skull Bomber - Retro Revamped
 
-![Skull Bomber Preview](./public/preview.png)
+<img width="874" height="775" alt="image" src="https://github.com/user-attachments/assets/95fde1cf-5a03-4c2b-837e-fb732e309b5f" />
+
 
 **Skull Bomber** is a high-octane, retro-inspired Bomberman revamp featuring skeleton warriors, dynamic themes, and a challenging level progression system. 
 
