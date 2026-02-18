@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skull Bomber - Retro Revamped Bomberman Game</title>
+  <meta name="description"
+    content="Play Skull Bomber, the ultimate retro revamped Bomberman experience! A fast-paced arcade game with skeleton warriors, multi-level challenges, and amazing neon visuals." />
+  <meta name="keywords"
+    content="bomberman, skull bomber, bomber man, retro game, arcade, skeleton bomber, online game, action game, bomb game" />
+  <meta name="author" content="Antigravity AI" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Skull Bomber - Retro Revamped Bomberman" />
+  <meta property="og:description"
+    content="Battle through levels as a skeleton warrior in this action-packed Bomberman revamp!" />
+  <meta property="og:image" content="/skeleton.png" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:title" content="Skull Bomber - Retro Revamped Bomberman" />
+  <meta property="twitter:description"
+    content="The ultimate retro Bomberman experience with skeleton warriors and neon themes." />
+  <meta property="twitter:image" content="/skeleton.png" />
+
+  <link rel="stylesheet" href="/style.css" />
+</head>
+
+<body>
+  <div id="game-container">
+    <!-- Home Screen -->
+    <div id="home-screen" class="overlay-full">
+      <div class="menu-box">
+        <h1>BOMBERMAN</h1>
+        <p>SELECT THEME</p>
+        <div class="theme-options">
+          <button class="theme-btn" data-theme="classic">CLASSIC MINIMAL</button>
+          <button class="theme-btn" data-theme="retro">BOMBERMAN RETRO</button>
+          <button class="theme-btn" data-theme="neon">NEON CYBER</button>
+        </div>
+        <p class="hint">CLICK A THEME TO START</p>
+      </div>
+    </div>
+    <header id="hud">
+      <div class="hud-item">TIME: <span id="timer">180</span></div>
+      <div id="hud-level" class="hud-item">LV: <span id="level-val">1</span></div>
+      <div id="hud-enemies" class="hud-item">👾: <span id="enemy-val">0</span></div>
+      <div class="hud-item title">BOMBERMAN</div>
+      <div class="hud-item">SCORE: <span id="score">0000</span></div>
+      <div class="hud-item">LIVES: <span id="lives">3</span></div>
+      <button id="audio-toggle" class="hud-btn">🔊 ON</button>
+    </header>
+    <div id="canvas-wrapper">
+      <canvas id="gameCanvas"></canvas>
+    </div>
+    <footer id="power-ups">
+      <div class="p-item" id="p-range">RANGE: 1</div>
+      <div class="p-item" id="p-bombs">BOMBS: 1</div>
+      <div class="p-item" id="p-speed">SPEED: 1</div>
+    </footer>
+  </div>
+  <div id="overlay" class="hidden">
+    <div id="message-box">
+      <h1 id="overlay-title">GAME OVER</h1>
+      <div id="level-msg" class="hidden">LEVEL CLEARED!</div>
+      <button id="restart-btn">PLAY AGAIN</button>
+    </div>
+  </div>
+  <script type="module" src="/main.js"></script>
+</body>
+
+</html>
