@@ -29,4 +29,3 @@ git clone https://github.com/RaviDandaiya/Skull-Bomber.git
 ```
 
 ---
-Developed with 💀 by Antigravity AI.
