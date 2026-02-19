@@ -69,6 +69,8 @@ let bgMusic = null;
 let isAudioOn = true;
 
 function initAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
     if (bgMusic) return;
     bgMusic = new Audio('music.mp3');
     bgMusic.loop = true;
@@ -76,10 +78,60 @@ function initAudio() {
     playBackgroundMusic();
 }
 
-function playBackgroundMusic() {
-    if (!isAudioOn || !bgMusic) return;
+function playSFX(type) {
+    if (!isAudioOn || !audioCtx) return;
+    if (audioCtx.state === 'suspended') audioCtx.resume();
 
-    if (currentGameState === GAME_STATES.PLAYING) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    const now = audioCtx.currentTime;
+
+    switch (type) {
+        case 'blast':
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.exponentialRampToValueAtTime(40, now + 0.5);
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+            osc.start(now);
+            osc.stop(now + 0.5);
+            break;
+        case 'kill':
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(440, now);
+            osc.frequency.exponentialRampToValueAtTime(110, now + 0.2);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+            osc.start(now);
+            osc.stop(now + 0.2);
+            break;
+        case 'game_over':
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(200, now);
+            osc.frequency.linearRampToValueAtTime(50, now + 1.5);
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
+            osc.start(now);
+            osc.stop(now + 1.5);
+            break;
+        case 'powerup':
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(300, now);
+            osc.frequency.exponentialRampToValueAtTime(900, now + 0.3);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+            osc.start(now);
+            osc.stop(now + 0.3);
+            break;
+    }
+}
+
+function playBackgroundMusic() {
+    if (!bgMusic) return;
+    if (isAudioOn && currentGameState === GAME_STATES.PLAYING) {
         bgMusic.play().catch(e => console.log("Audio play failed:", e));
     } else {
         bgMusic.pause();
@@ -266,7 +318,14 @@ function update(dt) {
         if (ex.timer <= 0) explosions.splice(i, 1);
         else {
             if (Math.round(player.x) === ex.x && Math.round(player.y) === ex.y && player.shieldTimer <= 0) handlePlayerDeath();
-            enemies.forEach((en, eIdx) => { if (Math.round(en.x) === ex.x && Math.round(en.y) === ex.y) { enemies.splice(eIdx, 1); spawnParticles(en.x, en.y, COLORS.ENEMY); player.score += 100; } });
+            enemies.forEach((en, eIdx) => {
+                if (Math.round(en.x) === ex.x && Math.round(en.y) === ex.y) {
+                    enemies.splice(eIdx, 1);
+                    spawnParticles(en.x, en.y, COLORS.ENEMY);
+                    player.score += 100;
+                    playSFX('kill');
+                }
+            });
         }
     }
     updateEnemies(dt);
@@ -324,6 +383,7 @@ function updateEnemies(dt) {
 
 function explode(bomb) {
     screenShake = 10;
+    playSFX('blast');
     spawnParticles(bomb.x, bomb.y, '#f1c40f');
     const directions = [[0, 0], [0, 1], [0, -1], [1, 0], [-1, 0]];
     directions.forEach(([dx, dy]) => {
@@ -352,6 +412,8 @@ function maybeSpawnPowerup(x, y) {
 function checkPowerups() {
     const x = Math.round(player.x); const y = Math.round(player.y);
     const tile = grid[y][x];
+    if (tile >= TILE_TYPES.POWERUP_FIRE) playSFX('powerup');
+
     if (tile === TILE_TYPES.POWERUP_FIRE) { player.bombRange++; player.score += 50; grid[y][x] = TILE_TYPES.EMPTY; }
     else if (tile === TILE_TYPES.POWERUP_BOMB) { player.maxBombs++; player.score += 50; grid[y][x] = TILE_TYPES.EMPTY; }
     else if (tile === TILE_TYPES.POWERUP_SPEED) { player.speed += 0.02; player.score += 50; grid[y][x] = TILE_TYPES.EMPTY; }
@@ -364,6 +426,7 @@ function handlePlayerDeath() {
     if (player.lives <= 0) {
         currentGameState = GAME_STATES.GAMEOVER;
         showOverlay('GAME OVER');
+        playSFX('game_over');
         // Stop music on game over
         if (bgMusic) {
             bgMusic.pause();
