@@ -65,36 +65,25 @@ powerupImg.src = '/skeleton_powerup.png';
 
 // --- Audio System ---
 let audioCtx = null;
-let musicNode = null;
+let bgMusic = null;
 let isAudioOn = true;
 
 function initAudio() {
-    if (audioCtx) return;
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (bgMusic) return;
+    bgMusic = new Audio('music.mp3');
+    bgMusic.loop = true;
+    bgMusic.volume = 0.2;
     playBackgroundMusic();
 }
 
 function playBackgroundMusic() {
-    if (!isAudioOn || !audioCtx) return;
+    if (!isAudioOn || !bgMusic) return;
 
-    // Simple Retro Synth Loop
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(110, audioCtx.currentTime); // Base note
-
-    gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
-
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-
-    osc.start();
-    osc.stop(audioCtx.currentTime + 2);
-
-    // Loop every 2 seconds for a rhythmic beat
-    setTimeout(() => { if (currentGameState === GAME_STATES.PLAYING) playBackgroundMusic(); }, 2000);
+    if (currentGameState === GAME_STATES.PLAYING) {
+        bgMusic.play().catch(e => console.log("Audio play failed:", e));
+    } else {
+        bgMusic.pause();
+    }
 }
 
 // --- Game State ---
@@ -153,7 +142,11 @@ function setupMenu() {
     document.getElementById('audio-toggle').addEventListener('click', (e) => {
         isAudioOn = !isAudioOn;
         e.target.innerText = isAudioOn ? '🔊 ON' : '🔇 OFF';
-        if (isAudioOn && audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        if (isAudioOn) {
+            if (currentGameState === GAME_STATES.PLAYING) bgMusic.play();
+        } else {
+            if (bgMusic) bgMusic.pause();
+        }
     });
 }
 
@@ -371,8 +364,16 @@ function handlePlayerDeath() {
     if (player.lives <= 0) {
         currentGameState = GAME_STATES.GAMEOVER;
         showOverlay('GAME OVER');
+        // Stop music on game over
+        if (bgMusic) {
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+        }
     }
-    else { player.x = 1; player.y = 1; player.targetX = 1; player.targetY = 1; player.isMoving = false; player.shieldTimer = 3000; }
+    else {
+        player.x = 1; player.y = 1; player.targetX = 1; player.targetY = 1;
+        player.isMoving = false; player.shieldTimer = 3000;
+    }
 }
 
 // --- RENDERING ---
