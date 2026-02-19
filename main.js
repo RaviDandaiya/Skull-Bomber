@@ -72,7 +72,7 @@ function initAudio() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (audioCtx.state === 'suspended') audioCtx.resume();
     if (bgMusic) return;
-    bgMusic = new Audio('game_loop.mp3');
+    bgMusic = new Audio('/game_loop.mp3');
     bgMusic.loop = true;
     bgMusic.volume = 0.2;
     playBackgroundMusic();
