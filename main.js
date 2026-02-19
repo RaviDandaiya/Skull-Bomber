@@ -239,6 +239,7 @@ function startGame(resetAll = false) {
     currentGameState = GAME_STATES.PLAYING;
     document.getElementById('overlay').classList.add('hidden');
     document.getElementById('level-msg').classList.add('hidden');
+    playBackgroundMusic();
 }
 
 function checkLevelComplete() {
